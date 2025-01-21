@@ -1,10 +1,10 @@
-# GoLite - A Lightweight Compiler for a Subset of Go
+# GoLite - A Lightweight Compiler for a Subset of Go 🚀
 
 This project implements a lexer and parser for a subset of the Go programming language. The implementation is designed to handle basic Go constructs and provide a foundation for further development.
 
 ## Features Handled
 
-### 1. Lexer Features
+### 1. Lexer Features 🔍
 - **Keywords**: `package`, `import`, `func`, `return`, `var`, `if`, `else`, `for`, `int`, `float64`, `string`, `bool`, `true`, `false`, `struct`, `interface`, `type`, `map`, `slice`, `chan`.
 - **Identifiers**: Valid Go identifiers (e.g., `x`, `myVar`, `MyStruct`).
 - **Literals**:
@@ -19,7 +19,7 @@ This project implements a lexer and parser for a subset of the Go programming la
   - Assignment: `=`, `:=`, `++`.
 - **Punctuation**: `(`, `)`, `{`, `}`, `;`, `,`, `.`.
 
-### 2. Parser Features
+### 2. Parser Features 🔧
 - **Program Structure**:
   - `package` declaration.
   - `import` statements.
@@ -39,8 +39,16 @@ This project implements a lexer and parser for a subset of the Go programming la
   - Method calls (e.g., `fmt.Println`).
 - **Error Recovery**:
   - Skips invalid statements and continues parsing.
+- **AST Creation**:
+  - The parser generates an Abstract Syntax Tree (AST) representing the parsed program.
+  - The AST includes nodes for all supported program structures, statements, and expressions.
+  - The AST is structured to facilitate further analysis and code generation.
+- **Semantic Analysis**:
+  - The parser performs semantic analysis to ensure the correctness of the parsed program.
+  - Semantic analysis includes type checking, scope resolution, and validation of method receivers.
+  - Errors detected during semantic analysis are reported with relevant error messages.
 
-### 3. Supported Go Constructs
+### 3. Supported Go Constructs 📦
 - **Structs**:
   ```go
   type Person struct {
@@ -52,7 +60,7 @@ This project implements a lexer and parser for a subset of the Go programming la
   ```go
   type Writer interface {
       Write(data string);
-  }
+  };
   ```
 - **Functions**:
   ```go
@@ -81,7 +89,7 @@ This project implements a lexer and parser for a subset of the Go programming la
   }
   ```
 
-## Remaining Features
+## Remaining Features 🚧
 
 The following Go features are **not yet implemented**:
 
@@ -111,10 +119,6 @@ The following Go features are **not yet implemented**:
   - Functions with variadic parameters (e.g., `func sum(nums ...int)`).
 
 ### 3. Semantic Analysis
-- **Type Checking**:
-  - Ensure types are used correctly (e.g., no assigning a string to an int).
-- **Symbol Table**:
-  - Track variables, functions, and types for scope resolution.
 - **Package Management**:
   - Handle imports and package-level declarations.
 
@@ -126,42 +130,41 @@ The following Go features are **not yet implemented**:
 - **Target Code Generation**:
   - Generate machine code or assembly for a specific target architecture.
 
-## Design Decision: Semicolons
+## Design Decision: Semicolons ✏️
 - **Explicit Semicolons**:
   - Unlike the Go compiler, which automatically inserts semicolons, our lexer and parser require explicit semicolons (`;`) to terminate statements.
   - This decision was made to keep the implementation simple and avoid the complexity of automatic semicolon insertion.
 
-## Usage
+## Usage 🛠️
 
-To use the lexer and parser, compile the code and run it with a Go source file as input: 
+To use the lexer and parser, compile the code and run it with a Go source file as input:
 
-**Build the Compiler**:  
+**Build the Compiler**:
 ```sh
 make
 ```
-**Run Tests**:  
+**Run Tests**:
 ```sh
 make test
 ```
-**Compile a Specific Source File**:  
+**Compile a Specific Source File**:
 ```sh
 make compile SOURCE_FILE=path/to/your_source_file.go
-```  
+```
 
-This will parse the input Go file and print the lexer and parser output to the console.
+This will parse the input Go file and print the lexer and parser output along with AST generated and semantic errors are reported if any to the console.
 
-## Future Work
+## Future Work 🔮
 
 The next steps include:
 - Implementing the remaining lexer and parser features.
-- Adding semantic analysis for type checking and symbol table management.
 - Developing code generation capabilities.
 - Enhancing error handling and recovery mechanisms.
 
-## Contributing
+## Contributing 🤝
 
 Contributions are welcome! Please open an issue or submit a pull request if you have any improvements or bug fixes.
 
-## License
+## License 📜
 
 This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
