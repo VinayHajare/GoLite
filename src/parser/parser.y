@@ -11,13 +11,13 @@
 #define COLOR_BLUE    "\x1b[34m"
 #define COLOR_RESET   "\x1b[0m"
 
-extern int line_num; // Declare line_num from lexer
+extern int yylineno; // Declare yylineno from lexer
 extern FILE* yyin;   // Declare yyin from lexer
 extern int yylex();  // Declare yylex
 
 // Define yyerror
 void yyerror(const char *s) {
-    fprintf(stderr, COLOR_RED "Error at line %d: %s\n" COLOR_RESET, line_num, s);
+    fprintf(stderr, COLOR_RED "Error at line %d: %s\n" COLOR_RESET, yylineno, s);
 }
 %}
 
@@ -62,10 +62,14 @@ program:
     PACKAGE IDENTIFIER SEMICOLON imports type_decls functions
     { 
       $$ = createProgramNode($4, $5, $6);
-      semanticAnalyze($$); // Perform semantic analysis
+      if (semanticAnalyze($$)) { // perform semantic analysis
+            fprintf(stderr, COLOR_RED "PARSER: Semantic errors detected, exiting...\n" COLOR_RESET);
+            YYABORT; // This will make Bison return 1 from yyparse()
+      }
       printf(COLOR_GREEN "PARSER: Program parsed successfully\n" COLOR_RESET);
       printAST($$, 0, 0, NULL); // Print AST for debugging
       printAST($$, 0, 1, "ast.json"); // Print AST to JSON file
+      printf(COLOR_GREEN "PARSER: AST created successfully\n" COLOR_RESET);
     }
     ;
 
