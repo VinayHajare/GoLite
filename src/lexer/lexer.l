@@ -1,3 +1,5 @@
+%option yylineno
+
 %{
 #include "parser.tab.h" // Include parser header
 #include <stdlib.h>
@@ -7,15 +9,13 @@
 #define COLOR_RESET   "\x1b[0m"
 
 extern FILE* yyin; // Declare yyin
-extern int line_num; // Declare line_num
 extern void yyerror(const char *s); // Declare yyerror
 
-int line_num = 1; // Define line_num
 %}
 
 %%
 
-\n              { line_num++; } // Increment line number but ignore newline
+\n              { } // Increment line number but ignore newline
 "//".*          ; // Skip single-line comments
 "/*"([^*]|"*"+[^*/])*"*"+"/" ; // Skip multi-line comments
 
@@ -83,7 +83,7 @@ int line_num = 1; // Define line_num
 [ \t]+          ; // Ignore spaces and tabs
 
 
-.               { fprintf(stderr, "Unknown character at line %d: %s\n", line_num, yytext); }
+.               { fprintf(stderr, "Unknown character at line %d: %s\n", yylineno, yytext); }
 
 %%
 
