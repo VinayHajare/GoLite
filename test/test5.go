@@ -11,21 +11,19 @@ type Speaker interface {
     Speak() string;
 };
 
-func (p Person) Speak() string {
-    return p.name + " is speaking.";
+func Speak(name string) string {
+    return "Hello, " + name + "!";
 }
 
 func main() {
-    var p Person;
-    p.name = "Alice";
-    p.age = 30;
+    var age int = 30;
+    var name string = "Alice";
+    fmt.Println(Speak());
 
-    var s Speaker = p;
-    fmt.Println(s.Speak());
-
-    if p.age > 25 {
+    if age > 25 {
         fmt.Println(p.name, "is older than 25");
     } else {
         fmt.Println(p.name, "is younger than 25");
     }
 }
+
