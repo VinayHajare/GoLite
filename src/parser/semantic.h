@@ -32,7 +32,7 @@ typedef struct Scope {
 } Scope;
 
 // Semantic analysis functions
-void semanticAnalyze(ASTNode* node);
+int semanticAnalyze(ASTNode* node);
 void enterScope();
 void exitScope();
 Symbol* addSymbol(char* name, SymbolType type, char* dataType);
