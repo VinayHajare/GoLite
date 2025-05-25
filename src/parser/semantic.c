@@ -191,6 +191,7 @@ Symbol *addSymbol(char *name, SymbolType type, char *dataType)
     if (!currentScope)
     {
         reportError("No active scope for symbol %s", name);
+        
         return NULL;
     }
 
@@ -201,6 +202,7 @@ Symbol *addSymbol(char *name, SymbolType type, char *dataType)
         if (strcmp(existing->name, name) == 0)
         {
             reportError("Symbol %s already declared in current scope", name);
+            
             return NULL;
         }
         existing = existing->next;
@@ -291,6 +293,8 @@ void checkInterfaceImplementation(Symbol *structSymbol, Symbol *interfaceSymbol)
         {
             reportError("Struct %s does not implement method %s required by interface %s",
                         structSymbol->name, interfaceMethod->method.name, interfaceSymbol->name);
+            
+            return;
         }
 
         interfaceMethod = interfaceMethod->method.next;
@@ -313,6 +317,7 @@ void analyzeStruct(ASTNode *node)
         if (field->type != NODE_FIELD)
         {
             reportError("Invalid field in struct %s", node->structDecl.name);
+            
             continue;
         }
 
@@ -326,6 +331,7 @@ void analyzeStruct(ASTNode *node)
                             field->field.type->typeDecl.name,
                             field->field.name,
                             node->structDecl.name);
+                
             }
         }
 
@@ -349,6 +355,7 @@ void analyzeInterface(ASTNode *node)
         if (method->type != NODE_METHOD)
         {
             reportError("Invalid method in interface %s", node->interfaceDecl.name);
+            
             continue;
         }
 
@@ -374,6 +381,7 @@ char *getType(ASTNode *node)
         if (!symbol)
         {
             reportError("Undeclared identifier: %s", node->identifier.name);
+            
         }
         return symbol->dataType;
     }
@@ -387,6 +395,7 @@ char *getType(ASTNode *node)
             reportError("Unknown field %s in struct %s",
                         node->structFieldAccess.fieldName,
                         node->structFieldAccess.structName);
+            
         }
         char *fieldType = strdup(field->dataType);
         free(field->name);
@@ -413,6 +422,7 @@ char *getType(ASTNode *node)
         {
             reportError("Type mismatch in binary operation '%s': cannot operate on types %s and %s",
                         node->binaryOp.op, leftType, rightType);
+            
         }
 
         return leftType;
@@ -424,6 +434,7 @@ char *getType(ASTNode *node)
         if (!func)
         {
             reportError("Undeclared function: %s", node->call.functionName);
+            
         }
         return func->dataType;
     }
@@ -434,12 +445,14 @@ char *getType(ASTNode *node)
         if (!structVar)
         {
             reportError("Undeclared variable: %s", node->methodCall.structName);
+            
         }
         // Find the method in the struct type
         Symbol *structType = findStructType(structVar->dataType);
         if (!structType)
         {
             reportError("Unknown struct type: %s", structVar->dataType);
+            
         }
         // TODO: Implement method lookup in struct type
         return "void"; // Temporary return type
@@ -473,6 +486,7 @@ void checkTypes(ASTNode *node)
         if (!symbol)
         {
             reportError("Undeclared variable: %s", node->assign.name);
+            return;
         }
 
         checkTypes(node->assign.expression);
@@ -481,6 +495,7 @@ void checkTypes(ASTNode *node)
         {
             reportError("Type mismatch in assignment to %s: cannot assign %s to variable of type %s",
                         node->assign.name, exprType, symbol->dataType);
+            
         }
         break;
     }
@@ -494,6 +509,7 @@ void checkTypes(ASTNode *node)
             reportError("Unknown field %s in struct %s",
                         node->structFieldAssign.fieldName,
                         node->structFieldAssign.structName);
+            
         }
 
         checkTypes(node->structFieldAssign.expression);
@@ -502,6 +518,7 @@ void checkTypes(ASTNode *node)
         {
             reportError("Type mismatch in field assignment: cannot assign %s to field of type %s",
                         exprType, field->dataType);
+            
         }
 
         free(field->name);
@@ -524,6 +541,7 @@ void checkTypes(ASTNode *node)
         {
             reportError("Type mismatch in variable declaration: cannot assign %s to variable of type %s",
                         exprType, declaredType);
+            
         }
         break;
     }
@@ -534,6 +552,7 @@ void checkTypes(ASTNode *node)
         if (!func)
         {
             reportError("Undeclared function: %s", node->call.functionName);
+            
         }
 
         ASTNode *arg = node->call.arguments;
@@ -549,6 +568,7 @@ void checkTypes(ASTNode *node)
             {
                 reportError("Type mismatch in argument for function %s: expected %s, got %s",
                             node->call.functionName, paramType, argType);
+                
             }
 
             arg = arg->argument.next;
@@ -559,6 +579,7 @@ void checkTypes(ASTNode *node)
         {
             reportError("Argument count mismatch in function call %s",
                         node->call.functionName);
+            
         }
         break;
     }
@@ -568,6 +589,7 @@ void checkTypes(ASTNode *node)
         if (!currentFunction)
         {
             reportError("Return statement outside function");
+            
         }
 
         checkTypes(node->returnStmt.expression);
@@ -576,6 +598,7 @@ void checkTypes(ASTNode *node)
         {
             reportError("Return type mismatch in function %s: returning %s, expected %s",
                         currentFunction->name, exprType, currentFunction->dataType);
+            
         }
         break;
     }
@@ -583,10 +606,10 @@ void checkTypes(ASTNode *node)
 }
 
 // Main semantic analysis function
-void semanticAnalyze(ASTNode *node)
+int semanticAnalyze(ASTNode *node)
 {
     if (!node)
-        return;
+        return errorFlag;
 
     switch (node->type)
     {
@@ -639,6 +662,8 @@ void semanticAnalyze(ASTNode *node)
                 semanticAnalyze(current);
             current = current->next;
         }
+        // Clean up after processing the node
+        cleanupSemanticAnalyzer();
         break;
 
     case NODE_FUNCTION:
@@ -682,6 +707,7 @@ void semanticAnalyze(ASTNode *node)
     case NODE_CALL:
     case NODE_RETURN:
     case NODE_BINARY_OP:
+    case NODE_STRUCT_FIELD_ASSIGN:
         checkTypes(node);
         semanticAnalyze(node->next);
         break;
@@ -698,6 +724,5 @@ void semanticAnalyze(ASTNode *node)
         }
         break;
     }
-    // Clean up after processing the node
-    cleanupSemanticAnalyzer();
+    return errorFlag;
 }
